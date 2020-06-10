@@ -20,14 +20,14 @@ router.post('/signup', (req, res) => {
 	const { name, email, password } = req.body;
 
 	if (!email || !password || !name) {
-		return res.status(422).json({ message: 'Please enter all fields' });
+		return res.status(422).json({ error: 'Please enter all fields' });
 	}
 	//res.json({ message: 'signedup successfully' });
 
 	User.findOne({ email: email })
 		.then((savedUser) => {
 			if (savedUser) {
-				return res.status(422).json({ message: 'Email already exists' });
+				return res.status(422).json({ error: 'Email already exists' });
 			}
 
 			bcrypt
@@ -41,19 +41,25 @@ router.post('/signup', (req, res) => {
 					newUser
 						.save()
 						.then((user) =>
-							res.json({ message: 'user account created successfully' })
+							res.json({ message: 'User account created successfully' })
 						)
 						.catch((error) => {
 							console.log(error);
-							res.status(422).json({ message: 'something went wrong' });
+							return res
+								.status(500)
+								.json({ error: 'Server is down, try again later' });
 						});
 				})
 				.catch((error) => {
 					console.log(error);
+					return res
+						.status(500)
+						.json({ error: 'Server is down, try again later' });
 				});
 		})
 		.catch((error) => {
 			console.log(error);
+			return res.status(500).json({ error: 'Server is down, try again later' });
 		});
 });
 
@@ -61,12 +67,12 @@ router.post('/signin', (req, res) => {
 	const { email, password } = req.body;
 
 	if (!email || !password) {
-		return res.status(422).json({ message: 'enter all details' });
+		return res.status(422).json({ error: 'Please enter all fields' });
 	}
 	User.findOne({ email: email })
 		.then((savedUser) => {
 			if (!savedUser) {
-				return res.status(422).json({ message: 'invalid email or password!' });
+				return res.status(422).json({ error: 'Wrong email or password!' });
 			}
 			bcrypt
 				.compare(password, savedUser.password)
@@ -76,19 +82,26 @@ router.post('/signin', (req, res) => {
 
 						//generating token on basis of userId (_id)
 						const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET_KEY);
-						res.json({ token });
+						const { _id, name, email, followers, following } = savedUser;
+						res.json({
+							message: 'Signin success',
+							token,
+							user: { _id, name, email, followers, following },
+						});
 					} else {
-						return res
-							.status(422)
-							.json({ message: 'invalid email or password!' });
+						return res.status(422).json({ error: 'Wrong email or password!' });
 					}
 				})
 				.catch((error) => {
 					console.log(error);
+					return res
+						.status(500)
+						.json({ error: 'Server is down, try again later' });
 				});
 		})
 		.catch((error) => {
 			console.log(error);
+			return res.status(500).json({ error: 'Server is down, try again later' });
 		});
 });
 
