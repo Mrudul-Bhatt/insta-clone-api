@@ -1,9 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
-const { MONGO_URI } = require('./keys');
+const { MONGO_URI } = require('./config/keys');
 const cors = require('cors');
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 //Routes
 const authRoutes = require('./routes/auth');
@@ -17,6 +18,16 @@ app.use(authRoutes);
 app.use(postRoutes);
 app.use(userRoutes);
 
+if (process.env.NODE_ENV === 'production') {
+	app.use(express.static('insta-react-front/build'));
+	const path = require('path');
+	app.get('*', (req, res) => {
+		res.sendFile(
+			path.resolve(__dirname, 'insta-react-front', 'build', 'index.html')
+		);
+	});
+}
+
 //Db
 mongoose
 	.connect(MONGO_URI, {
@@ -27,6 +38,6 @@ mongoose
 	.then(() => console.log('MongoDb connected!'))
 	.catch((error) => console.log(error));
 
-app.listen(process.env.PORT, () => {
-	console.log(`Server started on port ${process.env.PORT}`);
+app.listen(PORT, () => {
+	console.log(`Server started on port ${PORT}`);
 });

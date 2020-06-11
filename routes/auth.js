@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 
 //File Imports
 const User = require('../models/user');
-const { JWT_SECRET_KEY } = require('../keys');
+const { JWT_SECRET_KEY } = require('../config/keys');
 const requireLogin = require('../middleware/requireLogin');
 
 const router = express.Router();
@@ -82,11 +82,18 @@ router.post('/signin', (req, res) => {
 
 						//generating token on basis of userId (_id)
 						const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET_KEY);
-						const { _id, name, email, followers, following } = savedUser;
+						const {
+							_id,
+							name,
+							email,
+							followers,
+							following,
+							imageUrl,
+						} = savedUser;
 						res.json({
 							message: 'Signin success',
 							token,
-							user: { _id, name, email, followers, following },
+							user: { _id, name, email, followers, following, imageUrl },
 						});
 					} else {
 						return res.status(422).json({ error: 'Wrong email or password!' });
