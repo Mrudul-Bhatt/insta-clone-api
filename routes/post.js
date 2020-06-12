@@ -1,5 +1,4 @@
 const express = require('express');
-
 const Post = require('../models/post');
 const requireLogin = require('../middleware/requireLogin');
 
@@ -7,7 +6,7 @@ const router = express.Router();
 
 router.get('/allpost', requireLogin, (req, res) => {
 	Post.find()
-		.populate('postedBy', '_id name')
+		.populate('postedBy', '_id name imageUrl')
 		.populate('comments.postedBy', '_id name')
 		.then((posts) => {
 			res.json({ posts });
@@ -20,7 +19,7 @@ router.get('/allpost', requireLogin, (req, res) => {
 
 router.get('/allsubpost', requireLogin, (req, res) => {
 	Post.find({ postedBy: { $in: req.user.following } })
-		.populate('postedBy', '_id name')
+		.populate('postedBy', '_id name imageUrl')
 		.populate('comments.postedBy', '_id name')
 		.then((posts) => {
 			res.json({ posts });
@@ -33,7 +32,7 @@ router.get('/allsubpost', requireLogin, (req, res) => {
 
 router.get('/mypost', requireLogin, (req, res) => {
 	Post.find({ postedBy: req.user._id })
-		.populate('postedBy', '_id name')
+		.populate('postedBy', '_id name imageUrl')
 		.populate('comments.postedBy', '_id name')
 		.then((mypost) => res.json({ mypost }))
 		.catch((error) => {
@@ -53,7 +52,7 @@ router.put('/like', requireLogin, (req, res) => {
 		}
 	)
 		.populate('comments.postedBy', '_id name')
-		.populate('postedBy', '_id name')
+		.populate('postedBy', '_id name imageUrl')
 		.exec((err, result) => {
 			if (err) {
 				return res.status(422).json({ error: err });
@@ -74,7 +73,7 @@ router.put('/unlike', requireLogin, (req, res) => {
 		}
 	)
 		.populate('comments.postedBy', '_id name')
-		.populate('postedBy', '_id name')
+		.populate('postedBy', '_id name imageUrl')
 		.exec((err, result) => {
 			if (err) {
 				return res.status(422).json({ error: err });
@@ -100,7 +99,7 @@ router.put('/comments', requireLogin, (req, res) => {
 		}
 	)
 		.populate('comments.postedBy', '_id name')
-		.populate('postedBy', '_id name')
+		.populate('postedBy', '_id name imageUrl')
 		.exec((err, result) => {
 			if (err) {
 				return res.status(422).json({ error: err });
@@ -113,7 +112,7 @@ router.put('/comments', requireLogin, (req, res) => {
 router.delete('/deletepost/:postId', requireLogin, (req, res) => {
 	Post.findOne({ _id: req.params.postId })
 		.populate('comments.postedBy', '_id name')
-		.populate('postedBy', '_id name')
+		.populate('postedBy', '_id name imageUrl')
 		.exec((err, post) => {
 			if (err || !post) {
 				return res.status(422).json({ error: err });

@@ -6,15 +6,8 @@ const jwt = require('jsonwebtoken');
 //File Imports
 const User = require('../models/user');
 const { JWT_SECRET_KEY } = require('../config/keys');
-const requireLogin = require('../middleware/requireLogin');
 
 const router = express.Router();
-
-// router.get('/p', requireLogin, (req, res) => {
-// 	res.send('hello');
-// 	console.log(req.user);
-// 	res.json(req.user);
-// });
 
 router.post('/signup', (req, res) => {
 	const { name, email, password } = req.body;
@@ -22,7 +15,6 @@ router.post('/signup', (req, res) => {
 	if (!email || !password || !name) {
 		return res.status(422).json({ error: 'Please enter all fields' });
 	}
-	//res.json({ message: 'signedup successfully' });
 
 	User.findOne({ email: email })
 		.then((savedUser) => {
@@ -78,8 +70,6 @@ router.post('/signin', (req, res) => {
 				.compare(password, savedUser.password)
 				.then((doMatch) => {
 					if (doMatch) {
-						//return res.json({ message: 'signed in success' });
-
 						//generating token on basis of userId (_id)
 						const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET_KEY);
 						const {
