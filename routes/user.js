@@ -100,23 +100,17 @@ router.put('/profileimg', requireLogin, (req, res) => {
 		});
 });
 
-// router.patch('/uploadimage', requireLogin, (req, res) => {
-// 	User.findByIdAndUpdate(req.body.userId, {
-// 		imageUrl: req.body.imageUrl,
-// 	})
-// 		.then((data) => res.json({ data }))
-// 		.catch((err) => res.status(400).json({ message: 'Server Error' }));
-// });
-
-// exports.updateQuestion_ObjectId = (req, res) => {
-//     Questions.findByIdAndUpdate(req.params.postId, {
-//         question: req.body.question,
-//         answers: req.body.answers,
-//         correct: req.body.correct,
-//         questionId: req.body.questionId
-//     })
-//         .then(data => res.status(200).json({ message: "Question updated successfully" }))
-//         .catch(err => res.status(400).json(err));
-// };
+router.post('/search', (req, res) => {
+	let userPattern = new RegExp('^' + req.body.query);
+	User.find({ email: { $regex: userPattern } })
+		.select('_id email')
+		.then((result) => {
+			res.json({ result });
+		})
+		.catch((err) => {
+			console.log(err);
+			res.status(500).json({ error: 'Server Error' });
+		});
+});
 
 module.exports = router;
